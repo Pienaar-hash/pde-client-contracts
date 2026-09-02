@@ -1,106 +1,96 @@
-# FSP Portal → PDE New Business Candidate Contract v0
+# FSP Portal → PDE New Business Candidate v0
 
-**Status:** `contract_only`
+**Portal producer contract:** published  
+**PDE Portal-specific ingress:** pending  
+**PDE downstream New Business workflow:** existing
 
-**PDE main boundary inspected:** `dfe95e7294b0ea804fcee9a384dbd6680b06946b`
+This v0 contract lets the Snowfish FSP Portal build its side of the New Business integration now, without needing access to PDE internals and without waiting for the Portal-specific PDE receiver.
 
-**Internal PDE contract-source boundary:** `c436ae5b0454c5e10ec6d508f309407423301bc3`
+The important distinction is narrow: **PDE New Business is not a ghost.** PDE already has source-backed New Business intake, operator shell/capture, instruction persistence, issued-policy ingest, comparison, decision, client confirmation and acceptance/baseline flows. What does not yet exist is the adapter that receives this Portal-originated candidate before policy identity and active-work admission.
 
-**Portal producer boundary inspected:** `e0769ccf6fcb2cc82b6702560e55860d2053d239`
+The downstream PDE capability was rechecked at `4b3cd6facecf83152d17ee6234516737d937ea9b`. The original v0 contract was derived from PDE main `dfe95e7294b0ea804fcee9a384dbd6680b06946b`, internal contract-source `c436ae5b0454c5e10ec6d508f309407423301bc3`, and Portal producer boundary `e0769ccf6fcb2cc82b6702560e55860d2053d239`.
 
-This package publishes the narrow contract that the Snowfish FSP Portal may build against while PDE New Business candidate admission is not yet implemented.
+## Where v0 fits
 
-It is deliberately a **v0 producer boundary**, not a claim that PDE currently exposes a receiver. PDE implementation remains authoritative in `insurance-policy-engine-mvp`. The existence of this schema or example does not establish a deployed endpoint, service authentication, PDE candidate identity, admission state, blocker state, `/work` visibility or accepted policy authority.
+```text
+FSP Portal
+  enquiry + qualification
+          │
+          │ immutable handoff
+          ▼
+PortalNewBusinessCandidate v0
+          │
+          │ producer/delivery seam Stefan can build now
+          ▼
+[ Portal-specific PDE candidate/origin admission — pending ]
+          │
+          ▼
+existing PDE New Business domain
+  capture → issued-policy ingest → compare → decide → confirm → accept
+```
 
-## Purpose
+The target v1 receiving seam is shown in the repository-level [bird's-eye view](../../../../README.md).
 
-The contract allows the Portal to prepare a truthful outbound candidate and its own delivery/retry/operator loop without importing PDE code or inventing PDE semantics.
-
-The v0 envelope is derived only from the Portal's existing durable New Business handoff. It preserves the Portal handoff identity and captured enquiry provenance while making the authority class explicit.
-
-## Candidate contract
+## Candidate envelope
 
 Schema:
 
 `fsp-portal-new-business-candidate-v0.schema.json`
 
-Valid example:
+Synthetic example:
 
 `examples/candidate.valid.json`
 
-All values under `declarations` carry one v0 authority classification:
+The candidate preserves:
+
+- the immutable Portal `handoff_id`;
+- source enquiry and requirement identities;
+- the handoff creation time; and
+- the captured declaration snapshot.
+
+The declaration snapshot is explicitly typed as:
 
 `portal_captured_declaration`
 
-That classification means only that the Portal durably captured the declaration and preserved it in the New Business handoff. It does **not** mean the value is insurer-issued evidence, admitted policy state, broker advice, a client election recognised by PDE, or a verified canonical fact.
+That means the Portal captured and preserved the declaration. It does not promote the declaration into insurer-issued evidence or admitted policy state.
 
-## Hard negative guarantees
+## What Stefan can build now
 
-```text
-Portal handoff != PDE policy
-Portal handoff != PDE candidate admission
-transport success != domain admission
-handoff_id != policy_ref
-portal-captured declaration != insurer/source-document evidence
-candidate creation != /work visibility
-candidate creation != baseline
-candidate creation != comparison
-candidate creation != accepted policy state
-```
+Against v0, the Portal can independently implement:
 
-The schema intentionally contains no `policy_ref`, PDE case/candidate ID, comparison ID, blocker state, capability state or acceptance state.
+- deterministic candidate construction from the immutable handoff;
+- origin actor/provenance preservation;
+- a separate durable outbound/integration record;
+- delivery-attempt history;
+- retry and restart-safe persistence;
+- operator-visible queued/failed transport state;
+- Portal-side correlation by `handoff_id`; and
+- a local HTTP test receiver for transport and recovery proof.
 
-## What the Portal may implement against v0
+The local receiver is only a transport test double. The Portal does not need to wait for a real PDE endpoint to prove its own producer, persistence, retry and operator loop.
 
-The Portal may independently implement:
+## Current stop line
 
-- deterministic construction of the v0 candidate from an immutable handoff;
-- an append-only outbound/integration record separate from the handoff itself;
-- queued/not-attempted and transport-attempt state;
-- retry bookkeeping and attempt history;
-- restart-safe persistence;
-- operator-visible transport failure state;
-- reconciliation by its own `handoff_id` once a real PDE reconciliation contract exists; and
-- a deterministic local HTTP test receiver for **transport proof only**.
+Until PDE publishes the receiving contract, the Portal should not invent:
 
-A local test receiver must not be described as PDE and must not return invented PDE admission, blocker, policy or `/work` semantics.
+- a `policy_ref` merely to satisfy an existing PDE operator shell;
+- a PDE candidate/case ID;
+- PDE endpoint or authentication details;
+- PDE blocker, progression or capability vocabulary; or
+- a claim that successful transport means PDE admission or active work.
 
-The original Portal handoff remains immutable. Delivery state must be a separate record/projection.
+`handoff_id` is the cross-system correlation identity, not an insurer policy identity. Genuine source references may be carried when they really exist; Portal-captured declarations remain declarations.
 
-## Deliberately unresolved until v1
+## Target v1 seam
 
-v0 does **not** specify:
+v1 should connect the producer to a real PDE candidate/origin-admission boundary with:
 
-- a PDE URL or route;
-- service-to-service authentication;
-- a PDE candidate/case identity;
-- HTTP success/admission status semantics;
-- PDE idempotency implementation;
-- PDE rejection reason codes;
-- blocker or progression vocabulary;
-- reconciliation response shape;
-- active-work admission rules;
-- policy identity creation;
-- downstream CommunicationPlan, quote, comparison, decision or baseline behaviour; or
-- a PDE → Portal authoritative outcome projection.
+- service authentication;
+- idempotent receipt keyed by the external correlation identity;
+- a stable PDE candidate/case identity;
+- authority validation;
+- a bounded admission/blocker/next-owner response;
+- deterministic reconciliation after timeout or retry; and
+- a read-only correlated PDE state/outcome that the Portal can render without recomputing PDE authority.
 
-Those items require a real PDE receiving implementation and proof. They must not be guessed by the Portal.
-
-## v1 graduation rule
-
-This contract may graduate to v1 only when PDE has a merged receiving implementation that proves, at an exact PDE commit boundary:
-
-1. authenticated receipt of this candidate family;
-2. idempotency on an explicit external correlation contract;
-3. deterministic reconciliation after lost/ambiguous responses;
-4. preservation of Portal declaration authority without promotion to insurer evidence;
-5. negative proof that receipt alone creates no policy authority, baseline, comparison or active `/work` state; and
-6. an operator-visible disposition for every non-terminal received candidate.
-
-At v1, the package must name the exact implementing PDE commit and the implemented request/response/authentication/reconciliation contracts.
-
-## Ownership
-
-- FSP Portal owns construction of the producer envelope, its immutable handoff, outbound delivery attempts and Portal operator visibility.
-- PDE owns receiving/admission semantics, PDE identities, blockers/progression, consequential capabilities and admitted insurance state.
-- Neither side may infer the other's authority from transport behaviour.
+The Portal owns its producer, handoff, delivery attempts, retries and operator transport feedback. PDE owns candidate admission, PDE identity, authority validation, blockers/progression, capabilities and accepted insurance state. Reconciliation is a joint protocol: the Portal initiates and records it; PDE owns the authoritative result.
