@@ -1,0 +1,18 @@
+{
+  "contract_id": "fsp-portal-new-business-candidate",
+  "version": "v0",
+  "status": "contract_only",
+  "implementation_status": "not_implemented",
+  "publisher": "pde",
+  "consumer": "snowfish-fsp-portal",
+  "pde_main_boundary_sha": "dfe95e7294b0ea804fcee9a384dbd6680b06946b",
+  "internal_contract_source_sha": "c436ae5b0454c5e10ec6d508f309407423301bc3",
+  "portal_boundary_sha": "e0769ccf6fcb2cc82b6702560e55860d2053d239",
+  "schema": "fsp-portal-new-business-candidate-v0.schema.json",
+  "valid_examples": [
+    "examples/candidate.valid.json"
+  ],
+  "invalid_examples": [
+    "examples/candidate.invalid-authority.json"
+  ]
+}

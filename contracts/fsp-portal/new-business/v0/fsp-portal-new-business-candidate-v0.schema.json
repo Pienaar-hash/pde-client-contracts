@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:snowfish:pde:external:fsp-portal-new-business-candidate:v0",
+  "title": "FSP Portal New Business Candidate v0",
+  "description": "Contract-only producer envelope from the Snowfish FSP Portal. Receipt or transport of this envelope does not establish PDE admission or policy authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_system",
+    "handoff_id",
+    "source_enquiry_id",
+    "source_requirement_id",
+    "handoff_created_at",
+    "declarations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "fsp_portal_new_business_candidate_v0"
+    },
+    "source_system": {
+      "const": "snowfish_fsp_portal"
+    },
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^nb_"
+    },
+    "source_enquiry_id": {
+      "type": "string",
+      "pattern": "^enq_"
+    },
+    "source_requirement_id": {
+      "type": "string",
+      "pattern": "^req_"
+    },
+    "handoff_created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "declarations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority_kind",
+        "captured_at",
+        "name",
+        "email",
+        "phone",
+        "insurer",
+        "cover_type",
+        "message"
+      ],
+      "properties": {
+        "authority_kind": {
+          "const": "portal_captured_declaration"
+        },
+        "captured_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "insurer": {
+          "type": ["string", "null"]
+        },
+        "cover_type": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
