@@ -1,19 +1,10 @@
 # PDE Client Contracts
 
-This repository publishes the external contracts that client systems can use to integrate with PDE without needing access to PDE internals.
+Published client-facing contracts for systems that integrate with PDE without access to PDE internals.
 
-The first consumer is the Snowfish FSP Portal. PDE already has substantial New Business workflow capability; the missing seam is specifically the admission of a Portal-originated New Business candidate into that existing domain.
+The first consumer is the Snowfish FSP Portal.
 
-## FSP Portal → PDE: bird's-eye view
-
-Current position:
-
-- the FSP Portal already owns enquiry capture, enquiry lifecycle, broker qualification and an immutable New Business handoff;
-- the v0 producer contract is published here;
-- PDE already has source-backed New Business intake, operator capture, issued-policy ingest, comparison, decision, client confirmation and acceptance/baseline flows;
-- the Portal-specific PDE candidate/origin-admission receiver, service authentication and external reconciliation contract are still to be connected.
-
-The target system boundary is:
+## Directional integration view
 
 ```text
 CUSTOMER / CHANNEL
@@ -29,7 +20,6 @@ CUSTOMER / CHANNEL
 └────────────┬─────────────┘
              │
              │ PortalNewBusinessCandidate
-             │ v0 producer now → v1 receiving seam later
              │
              │ handoff_id
              │ origin actor
@@ -74,11 +64,9 @@ CUSTOMER / CHANNEL
                      state/outcome to Portal
 ```
 
-This is the intended **system boundary**, not a claim that PDE's internal packages form a literal serial pipeline.
+This diagram is directional. It shows the intended system boundary and ownership flow; it is not a runtime topology or implementation-status map.
 
-## Joint contract boundary
-
-For this collaboration, Stefan owns the Portal side of the seam and PDE owns admission and downstream insurance authority.
+## Ownership boundary
 
 ```text
                   JOINT CONTRACT
@@ -95,18 +83,30 @@ For this collaboration, Stefan owns the Portal side of the seam and PDE owns adm
        genuine source refs      capabilities
        delivery attempts        accepted state
        retries                  reconciliation result
-       Portal-side reconcile    downstream authority
-       operator transport UI
+       reconciliation client    downstream authority
+       operator feedback
 ```
 
-The shared contract owns the versioned request/response shapes, correlation identity and compatibility rules. Neither system may infer the other's authority from transport behaviour.
+The shared contract owns the versioned request/response shapes, correlation identity and compatibility rules. Portal implementation remains on the Portal side of the boundary; PDE admission and insurance authority remain on the PDE side.
 
-## Current published contract
+## Portal-side New Business tranche
 
-The first contract is [`contracts/fsp-portal/new-business/v0`](contracts/fsp-portal/new-business/v0/README.md).
+The Portal side can advance as one substantial engineering tranche before PDE receiver work is required:
 
-It lets the Portal build its producer, durable delivery/retry state and operator transport loop now. It stops before the still-pending PDE Portal-ingress adapter. When that receiving seam exists, the contract can advance to v1 with the real endpoint, authentication, idempotent reconciliation and PDE candidate response.
+- produce the candidate deterministically from the immutable New Business handoff;
+- preserve `handoff_id`, origin actor/provenance, authority typing and genuine source references where available;
+- keep delivery state separate from the immutable handoff;
+- build durable outbound/integration records and delivery-attempt history;
+- implement retry, restart recovery and correlation/idempotency handling;
+- define a configurable outbound adapter boundary for the eventual PDE receiver;
+- surface queued, failed, retry and reconciliation states to the Portal operator;
+- prove transport, timeout, retry and restart behaviour with a deterministic test receiver; and
+- document the Portal-side operating and recovery path.
 
-## Why this repository exists
+This is intentionally a cohesive ownership tranche rather than a sequence of micro-issues. The useful review point is when the Portal side is complete enough that further progress genuinely depends on PDE receiver, authentication, response or reconciliation semantics. PDE work can then be implemented against the proven producer boundary rather than anticipated in advance.
 
-The first seam is intentionally small. The value of a separate public repository is that an external client can pin a contract or schema without receiving access to the private PDE implementation. It should stay small: published contracts and the minimum examples/tooling needed to consume them, not a second copy of PDE documentation.
+## Current contract
+
+[`contracts/fsp-portal/new-business/v0`](contracts/fsp-portal/new-business/v0/README.md)
+
+The repository should remain small: published contracts and the minimum examples/tooling needed to consume them.

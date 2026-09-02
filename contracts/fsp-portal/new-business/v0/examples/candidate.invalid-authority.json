@@ -13,6 +13,6 @@
     "phone": "+27000000001",
     "insurer": null,
     "cover_type": "commercial_lines",
-    "message": "Intentionally invalid: a Portal-captured declaration must not be promoted to insurer evidence."
+    "message": "Synthetic invalid authority classification."
   }
 }

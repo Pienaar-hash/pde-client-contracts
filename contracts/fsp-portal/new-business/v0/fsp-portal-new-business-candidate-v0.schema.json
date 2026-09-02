@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:snowfish:pde:external:fsp-portal-new-business-candidate:v0",
   "title": "FSP Portal New Business Candidate v0",
-  "description": "Contract-only producer envelope from the Snowfish FSP Portal. Receipt or transport of this envelope does not establish PDE admission or policy authority.",
+  "description": "Producer envelope for a Snowfish FSP Portal New Business handoff.",
   "type": "object",
   "additionalProperties": false,
   "required": [
