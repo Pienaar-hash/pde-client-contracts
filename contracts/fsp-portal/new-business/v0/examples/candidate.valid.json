@@ -1,0 +1,18 @@
+{
+  "schema_version": "fsp_portal_new_business_candidate_v0",
+  "source_system": "snowfish_fsp_portal",
+  "handoff_id": "nb_00000000-0000-4000-8000-000000000001",
+  "source_enquiry_id": "enq_00000000-0000-4000-8000-000000000002",
+  "source_requirement_id": "req_00000000-0000-4000-8000-000000000003",
+  "handoff_created_at": "2026-09-02T12:00:00Z",
+  "declarations": {
+    "authority_kind": "portal_captured_declaration",
+    "captured_at": "2026-09-02T11:55:00Z",
+    "name": "Synthetic New Business Prospect",
+    "email": "synthetic@example.invalid",
+    "phone": "+27000000000",
+    "insurer": null,
+    "cover_type": "commercial_lines",
+    "message": "Synthetic contract example only. No insurer evidence or PDE admission is implied."
+  }
+}
