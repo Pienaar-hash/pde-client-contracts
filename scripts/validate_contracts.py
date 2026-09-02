@@ -20,13 +20,10 @@ def main() -> None:
     required_metadata = {
         "contract_id",
         "version",
-        "status",
-        "implementation_status",
         "publisher",
         "consumer",
-        "pde_main_boundary_sha",
-        "internal_contract_source_sha",
-        "portal_boundary_sha",
+        "producer_contract_status",
+        "pde_ingress_status",
         "schema",
         "valid_examples",
         "invalid_examples",
@@ -35,10 +32,10 @@ def main() -> None:
     if missing:
         raise SystemExit(f"contract metadata missing keys: {', '.join(missing)}")
 
-    if metadata["status"] != "contract_only":
-        raise SystemExit("v0 status must remain contract_only")
-    if metadata["implementation_status"] != "not_implemented":
-        raise SystemExit("v0 implementation_status must remain not_implemented")
+    if metadata["producer_contract_status"] != "published":
+        raise SystemExit("v0 producer_contract_status must be published")
+    if metadata["pde_ingress_status"] != "pending":
+        raise SystemExit("v0 pde_ingress_status must be pending")
 
     schema = load_json(CONTRACT_ROOT / metadata["schema"])
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
